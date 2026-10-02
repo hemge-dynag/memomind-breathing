@@ -1,0 +1,23 @@
+{
+  "id": "com.dynag.breathing.phone",
+  "name": "GM Breathing",
+  "version": "1.0.0",
+  "entry": "index.html",
+  "bridgeVersion": "2.0",
+  "permissions": [
+    { "name": "storage", "required": true },
+    { "name": "device.info", "required": true },
+    { "name": "device.messaging", "required": true, "scope": { "channels": [21061, 21062] } },
+    { "name": "device.events", "required": false, "scope": { "types": ["connection"] } }
+  ],
+  "deviceRequirements": {
+    "preferredPluginId": "com.dynag.breathing.glass",
+    "requiredPluginId": "com.dynag.breathing.glass",
+    "minPluginVersion": "1",
+    "protocols": [
+      { "id": "gm.breathing", "minVersion": "1.0" }
+    ]
+  },
+  "schemaVersion": 2,
+  "permissionPolicyVersion": 1
+}

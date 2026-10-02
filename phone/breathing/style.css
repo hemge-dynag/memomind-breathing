@@ -1,0 +1,156 @@
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #0b0e14;
+  color: #f2f4f8;
+  font-family: system-ui, -apple-system, sans-serif;
+  padding: 16px;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+h1 {
+  font-size: 1.2rem;
+  margin: 0;
+}
+
+h2 {
+  font-size: 1rem;
+  margin: 0 0 12px;
+}
+
+.status {
+  font-size: 0.8rem;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #2a2f3a;
+}
+
+.status.ready { background: #1f4d2e; color: #7fe3a0; }
+.status.error { background: #4d1f24; color: #f28b8b; }
+
+.presets {
+  margin-bottom: 20px;
+}
+
+.preset-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.preset-grid button {
+  background: #151a24;
+  color: #dfe4ee;
+  border: 1px solid #2a2f3a;
+  border-radius: 10px;
+  padding: 12px 6px;
+  font-size: 0.9rem;
+  line-height: 1.3;
+  cursor: pointer;
+}
+
+.preset-grid button small {
+  color: #8891a0;
+  font-size: 0.72rem;
+}
+
+.preset-grid button.active {
+  border-color: #3a63f0;
+  background: #172038;
+  color: #ffffff;
+}
+
+.preset-grid button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.settings {
+  margin-bottom: 20px;
+}
+
+.setting label {
+  display: block;
+  font-size: 0.9rem;
+  color: #c3c9d4;
+  margin-bottom: 8px;
+}
+
+.setting input[type="range"] {
+  width: 100%;
+  accent-color: #3a63f0;
+}
+
+.controls {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+button {
+  font-size: 1rem;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: none;
+  background: #2a2f3a;
+  color: white;
+  cursor: pointer;
+  flex: 1;
+}
+
+button.primary {
+  background: #3a63f0;
+}
+
+button:disabled {
+  background: #2a2f3a;
+  color: #6b7280;
+  cursor: not-allowed;
+}
+
+.stats {
+  background: #151a24;
+  padding: 16px;
+  border-radius: 10px;
+}
+
+.stat-grid {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.stat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #0f131c;
+  border-radius: 8px;
+  padding: 12px 6px;
+}
+
+.stat-value {
+  font-size: 1.6rem;
+  font-weight: 600;
+}
+
+.stat-label {
+  font-size: 0.74rem;
+  color: #8891a0;
+  text-align: center;
+}
+
+.hint {
+  font-size: 0.8rem;
+  color: #8891a0;
+  margin: 8px 0 0;
+}

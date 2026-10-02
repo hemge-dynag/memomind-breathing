@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+    <meta name="theme-color" content="#0b0e14">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none'">
+    <title>GM Breathing</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <header class="app-header">
+      <h1>Respiration</h1>
+      <span id="status" class="status">Démarrage…</span>
+    </header>
+
+    <main>
+      <section class="presets">
+        <h2>Rythme</h2>
+        <div class="preset-grid">
+          <button type="button" data-preset="coherence">Cohérence<br><small>5s / 5s</small></button>
+          <button type="button" data-preset="relax">Relaxation<br><small>4s / 6s</small></button>
+          <button type="button" data-preset="box">Carré<br><small>4-4-4-4</small></button>
+        </div>
+        <p id="pattern-summary" class="hint">Rythme : 5s - 5s — 5 min</p>
+      </section>
+
+      <section class="settings">
+        <div class="setting">
+          <label for="duration">Durée de la séance : <span id="duration-value">5</span> min</label>
+          <input type="range" id="duration" min="1" max="30" step="1" value="5">
+        </div>
+      </section>
+
+      <section class="controls">
+        <button id="start-button" class="primary">Démarrer</button>
+        <button id="stop-button">Arrêter</button>
+      </section>
+
+      <section class="stats">
+        <h2>Séances</h2>
+        <div class="stat-grid">
+          <div class="stat">
+            <span id="today-count" class="stat-value">0</span>
+            <span class="stat-label">aujourd'hui</span>
+          </div>
+          <div class="stat">
+            <span id="week-count" class="stat-value">0</span>
+            <span class="stat-label">7 derniers jours</span>
+          </div>
+          <div class="stat">
+            <span id="week-minutes" class="stat-value">0</span>
+            <span class="stat-label">min (7 j)</span>
+          </div>
+        </div>
+        <p id="last-session" class="hint">Aucune séance pour le moment.</p>
+      </section>
+    </main>
+
+    <script type="module" src="plugin.js"></script>
+  </body>
+</html>
