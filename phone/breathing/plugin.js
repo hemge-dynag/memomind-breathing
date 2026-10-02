@@ -12,6 +12,9 @@ import {
   encodePause,
   encodeStop,
 } from './protocol.js';
+import { detectLocale, getStrings } from './translations.js';
+
+const S = getStrings(detectLocale());
 
 const STORAGE_KEY = 'breathing';
 
@@ -34,6 +37,24 @@ let history = {}; // { 'YYYY-MM-DD': { sessions, seconds } }
 let connected = false;
 let running = false;
 let paused = false;
+
+function applyStrings() {
+  document.documentElement.lang = detectLocale();
+  document.querySelector('#app-title').textContent = S.appTitle;
+  document.querySelector('#section-rhythm').textContent = S.sectionRhythm;
+  document.querySelector('#preset-coherence').textContent = S.presetCoherence;
+  document.querySelector('#preset-relax').textContent = S.presetRelax;
+  document.querySelector('#preset-box').textContent = S.presetBox;
+  document.querySelector('#duration-label').textContent = S.durationLabel;
+  document.querySelector('#unit-min').textContent = S.unitMin;
+  document.querySelector('#section-sessions').textContent = S.sectionSessions;
+  document.querySelector('#stat-today').textContent = S.statToday;
+  document.querySelector('#stat-week').textContent = S.statWeek;
+  document.querySelector('#stat-week-min').textContent = S.statWeekMin;
+  document.querySelector('#last-session').textContent = S.noSession;
+  stopButton.textContent = S.stop;
+  setStatus(S.statusStarting);
+}
 
 function setStatus(text, state = '') {
   statusEl.textContent = text;
@@ -73,7 +94,7 @@ function patternLabel() {
 }
 
 function renderPattern() {
-  patternSummary.textContent = `Rythme : ${patternLabel()} — ${config.durationMin} min`;
+  patternSummary.textContent = S.patternSummary(patternLabel(), config.durationMin);
   durationInput.value = String(config.durationMin);
   durationValue.textContent = String(config.durationMin);
   presetButtons.forEach((button) => {
@@ -110,7 +131,7 @@ function renderControls() {
   });
   startButton.disabled = !connected;
   stopButton.disabled = !connected || !running;
-  startButton.textContent = paused ? 'Reprendre' : running ? 'Pause' : 'Démarrer';
+  startButton.textContent = paused ? S.resume : running ? S.pause : S.start;
   renderPattern();
 }
 
@@ -191,7 +212,7 @@ const offMessages = gm.plugin.onMessage((message) => {
     renderControls();
     const minutes = Math.round(decoded.seconds / 60);
     lastSessionEl.textContent =
-      `Dernière séance : ${formatTime(new Date().toISOString())} — ${minutes} min, ${decoded.cycles} cycles.`;
+      S.lastSession(formatTime(new Date().toISOString()), minutes, decoded.cycles);
   }
 });
 
@@ -199,19 +220,20 @@ async function start() {
   try {
     await gm.ready();
     await loadState();
+    applyStrings();
     renderPattern();
     renderStats();
     renderControls();
     const info = await gm.device.getInfo();
     connected = Boolean(info.connected);
-    setStatus(connected ? 'Lunettes connectées' : 'Lunettes déconnectées', connected ? 'ready' : 'error');
+    setStatus(connected ? S.statusConnected : S.statusDisconnected, connected ? 'ready' : 'error');
     renderControls();
     // Push the saved pattern so the glasses resume the chosen behavior.
     await sendConfig();
     await gm.device.subscribeEvents(['connection']);
     gm.device.onConnection((event) => {
       connected = Boolean(event.connected);
-      setStatus(connected ? 'Lunettes connectées' : 'Lunettes déconnectées', connected ? 'ready' : 'error');
+      setStatus(connected ? S.statusConnected : S.statusDisconnected, connected ? 'ready' : 'error');
       renderControls();
       if (connected) void sendConfig();
     });

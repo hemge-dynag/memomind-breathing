@@ -69,13 +69,26 @@ typedef struct {
     uint32_t session_elapsed_ms;
     uint32_t refresh_elapsed_ms;
     uint16_t cycles;
-    uint8_t language; /* 0 = French (default), 1 = English */
+    uint8_t language; /* 0=fr 1=en 2=es 3=it 4=de 5=zh-CN */
 } breathing_t;
 
-/* Picks the French or English string depending on the detected UI locale. */
-#define L(fr_str, en_str) (br.language != 0U ? (en_str) : (fr_str))
+/* Picks the string for the detected UI locale. */
+#define L(fr_str, en_str, es_str, it_str, de_str, zh_str) \
+    (br.language == 1U ? (en_str) : br.language == 2U ? (es_str) : \
+     br.language == 3U ? (it_str) : br.language == 4U ? (de_str) : \
+     br.language == 5U ? (zh_str) : (fr_str))
 
 static breathing_t br;
+
+static uint8_t breathing_detect_language(const char *locale)
+{
+    if (locale[0] == 'e' && locale[1] == 'n') return 1U;
+    if (locale[0] == 'e' && locale[1] == 's') return 2U;
+    if (locale[0] == 'i' && locale[1] == 't') return 3U;
+    if (locale[0] == 'd' && locale[1] == 'e') return 4U;
+    if (locale[0] == 'z' && locale[1] == 'h') return 5U;
+    return 0U;
+}
 
 #define number gm_plugin_lvgl_style_number
 #define color gm_plugin_lvgl_style_color
@@ -181,44 +194,48 @@ static void refresh_display(void)
     uint32_t phase_duration = (uint32_t)br.phase_sec[br.phase] * 1000U;
 
     if (!br.running && !br.done) {
-        br.ui->label_set_text(br.phase_label, L("Pret", "Ready"));
+        br.ui->label_set_text(br.phase_label, L("Pret", "Ready", "Listo", "Pronto", "Bereit", "准备"));
         set_style(br.phase_label, GM_PLUGIN_LVGL_STYLE_TEXT_COLOR, color(0xC0));
         br.ui->label_set_text(br.countdown_label, "");
         br.ui->label_set_text(br.info_label,
             L("Choisis un rythme sur le telephone",
-              "Pick a pattern on the phone"));
+              "Pick a pattern on the phone",
+              "Elige un ritmo en el teléfono",
+              "Scegli un ritmo sul telefono",
+              "Wähle ein Muster am Telefon",
+              "请在手机上选择节奏"));
         br.ui->label_set_text(br.hint_label,
-            L("Bouton : demarrer", "Button: start"));
+            L("Bouton : demarrer", "Button: start", "Botón: iniciar", "Pulsante: avvia", "Taste: Start", "按钮：开始"));
         update_pacer();
         return;
     }
 
     if (br.done) {
-        br.ui->label_set_text(br.phase_label, L("Termine", "Done"));
+        br.ui->label_set_text(br.phase_label, L("Termine", "Done", "Terminado", "Finito", "Fertig", "完成"));
         set_style(br.phase_label, GM_PLUGIN_LVGL_STYLE_TEXT_COLOR, color(0xF0));
         br.ui->label_set_text(br.countdown_label, "");
-        br.libc->snprintf(text, sizeof(text), L("Cycles : %u", "Cycles: %u"),
+        br.libc->snprintf(text, sizeof(text), L("Cycles : %u", "Cycles: %u", "Ciclos: %u", "Cicli: %u", "Zyklen: %u", "循环：%u"),
                            (unsigned int)br.cycles);
         br.ui->label_set_text(br.info_label, text);
         br.ui->label_set_text(br.hint_label,
-            L("Bouton : recommencer", "Button: restart"));
+            L("Bouton : recommencer", "Button: restart", "Botón: reiniciar", "Pulsante: riavvia", "Taste: neu starten", "按钮：重新开始"));
         update_pacer();
         return;
     }
 
     if (br.paused) {
-        br.ui->label_set_text(br.phase_label, L("En pause", "Paused"));
+        br.ui->label_set_text(br.phase_label, L("En pause", "Paused", "En pausa", "In pausa", "Pausiert", "暂停"));
         set_style(br.phase_label, GM_PLUGIN_LVGL_STYLE_TEXT_COLOR, color(0xD0));
     } else {
         switch (br.phase) {
         case PHASE_INHALE:
-            br.ui->label_set_text(br.phase_label, L("Inspire", "Inhale"));
+            br.ui->label_set_text(br.phase_label, L("Inspire", "Inhale", "Inhala", "Inspira", "Einatmen", "吸气"));
             break;
         case PHASE_EXHALE:
-            br.ui->label_set_text(br.phase_label, L("Expire", "Exhale"));
+            br.ui->label_set_text(br.phase_label, L("Expire", "Exhale", "Exhala", "Espira", "Ausatmen", "呼气"));
             break;
         default:
-            br.ui->label_set_text(br.phase_label, L("Retiens", "Hold"));
+            br.ui->label_set_text(br.phase_label, L("Retiens", "Hold", "Retén", "Trattieni", "Halten", "屏息"));
             break;
         }
         set_style(br.phase_label, GM_PLUGIN_LVGL_STYLE_TEXT_COLOR, color(0xF0));
@@ -234,13 +251,13 @@ static void refresh_display(void)
     remaining_sec = br.session_elapsed_ms >= br.duration_ms
         ? 0U : (br.duration_ms - br.session_elapsed_ms + 999U) / 1000U;
     br.libc->snprintf(text, sizeof(text),
-        L("Cycles : %u   Reste %u:%02u", "Cycles: %u   Left %u:%02u"),
+        L("Cycles : %u   Reste %u:%02u", "Cycles: %u   Left %u:%02u", "Ciclos: %u   Queda %u:%02u", "Cicli: %u   Resta %u:%02u", "Zyklen: %u   Übrig %u:%02u", "循环：%u   剩余 %u:%02u"),
         (unsigned int)br.cycles,
         (unsigned int)(remaining_sec / 60U), (unsigned int)(remaining_sec % 60U));
     br.ui->label_set_text(br.info_label, text);
 
     br.ui->label_set_text(br.hint_label,
-        L("Bouton : pause / reprendre", "Button: pause / resume"));
+        L("Bouton : pause / reprendre", "Button: pause / resume", "Botón: pausa / reanudar", "Pulsante: pausa / riprendi", "Taste: Pause / Weiter", "按钮：暂停 / 继续"));
     update_pacer();
 }
 
@@ -354,9 +371,8 @@ static gm_plugin_result_t breathing_start(void *context)
 
     br.language = 0U;
     if (br.host->locale_get != 0 &&
-        br.host->locale_get(locale) == GM_PLUGIN_OK &&
-        locale[0] == 'e' && locale[1] == 'n')
-        br.language = 1U;
+        br.host->locale_get(locale) == GM_PLUGIN_OK)
+        br.language = breathing_detect_language(locale);
 
     if (br.host->display_get_info(&display) != GM_PLUGIN_OK ||
         display.width <= SCREEN_MARGIN * 2U ||
