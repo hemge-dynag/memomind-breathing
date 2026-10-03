@@ -311,10 +311,15 @@ static void advance_phases(uint32_t elapsed_ms)
     uint8_t guard = 0U;
 
     br.phase_elapsed_ms += elapsed_ms;
-    while (guard < 8U) {
+    /* Advance the state machine. A configured phase may be zero seconds long
+     * (e.g. the coherence pattern has no holds); skip those instead of
+     * stopping on them, otherwise the pacer freezes on a "Hold" with a 0
+     * countdown and never resumes. */
+    while (guard < 16U) {
         uint32_t duration = (uint32_t)br.phase_sec[br.phase] * 1000U;
-        if (duration == 0U || br.phase_elapsed_ms < duration) break;
-        br.phase_elapsed_ms -= duration;
+        if (duration > 0U && br.phase_elapsed_ms < duration) break;
+        if (duration > 0U) br.phase_elapsed_ms -= duration;
+        else br.phase_elapsed_ms = 0U;
         br.phase = next_phase(br.phase);
         if (br.phase == PHASE_INHALE && br.cycles < 0xFFFFU) br.cycles++;
         guard++;
